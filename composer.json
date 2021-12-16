@@ -12,14 +12,15 @@
     "require": {
         "ext-json": "*",
         "php": "^7.4 || ^8.0",
-        "ray/aop": "^2.10",
-        "ray/di": "^2.12",
-        "sentry/sdk": "^3.1",
-        "sentry/sentry": "^3.3"
+        "ray/aop": "^2.11",
+        "ray/di": "^2.13.2",
+        "sentry/sdk": "^3.1.1",
+        "sentry/sentry": "^3.3.4",
+        "symfony/options-resolver": "^5.4"
     },
     "require-dev": {
         "bear/package": "^1.10",
-        "bear/resource": "^1.15",
+        "bear/resource": "^1.16.3",
         "bear/sunday": "^1.5.4",
         "bear/qatools": "^1.9",
         "phpunit/phpunit": "^9.5",

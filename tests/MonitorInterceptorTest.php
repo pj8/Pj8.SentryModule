@@ -3,6 +3,8 @@
 namespace Pj8\SentryModule;
 
 use PHPUnit\Framework\TestCase;
+use Pj8\SentryModule\Fake\FakeBar;
+use Pj8\SentryModule\Fake\FakeBaz;
 use Pj8\SentryModule\Fake\FakeRo;
 use Ray\Aop\ReflectiveMethodInvocation;
 
@@ -16,7 +18,7 @@ class MonitorInterceptorTest extends TestCase
         $spanContext = new SpanContextFactory(new ResourceSpanFactory());
         $interceptor = new MonitorInterceptor($span, $spanContext);
 
-        $stub = new FakeRo();
+        $stub = new FakeRo(new FakeBaz(), new FakeBar());
         $invocation = new ReflectiveMethodInvocation($stub, 'onGet', [$interceptor]);
         $result = $interceptor->invoke($invocation);
 

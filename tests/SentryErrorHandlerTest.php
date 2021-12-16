@@ -28,5 +28,6 @@ class SentryErrorHandlerTest extends TestCase
         $result = $handler->handle($exception, $request);
 
         $this->assertInstanceOf(VndError::class, $result);
+        $handler->transfer();
     }
 }

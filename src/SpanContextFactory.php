@@ -8,6 +8,7 @@ use BEAR\Resource\ResourceObject;
 use Ray\Aop\MethodInvocation;
 use Sentry\Tracing\SpanContext;
 
+use function in_array;
 use function json_encode;
 use function sprintf;
 
@@ -22,12 +23,22 @@ final class SpanContextFactory implements SpanContextFactoryInterface
 
     public function __invoke(MethodInvocation $invocation): SpanContext
     {
-        $object = $invocation->getThis();
-        if ($object instanceof ResourceObject) {
+        if ($this->isResourfceRequest($invocation)) {
             return ($this->factory)($invocation);
         }
 
         return $this->getGenericContext($invocation);
+    }
+
+    private function isResourfceRequest(MethodInvocation $invocation): bool
+    {
+        if (! $invocation->getThis() instanceof ResourceObject) {
+            return false;
+        }
+
+        $method = $invocation->getMethod()->getName();
+
+        return in_array($method, ['onGet', 'onPost', 'onUpdate', 'onDelete']);
     }
 
     private function getGenericContext(MethodInvocation $invocation): SpanContext

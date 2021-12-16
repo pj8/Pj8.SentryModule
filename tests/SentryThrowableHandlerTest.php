@@ -23,6 +23,7 @@ class SentryThrowableHandlerTest extends TestCase
         $transfer = new NullTransfer();
         $original = new ThrowableHandler(new VndError($transfer));
         $handler = new SentryThrowableHandler($original);
+        $handler->transfer();
         $exception = new RuntimeException();
         $injector = new Injector(new ResourceModule('FakeApplication'), __DIR__ . '/tmp');
         $request = $injector->getInstance(RouterMatch::class);

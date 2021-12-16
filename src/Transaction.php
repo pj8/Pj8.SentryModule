@@ -10,6 +10,7 @@ use Sentry\Tracing\SpanContext;
 use Sentry\Tracing\Transaction as SentryTransaction;
 use Sentry\Tracing\TransactionContext;
 
+use function http_response_code;
 use function Sentry\init;
 use function Sentry\startTransaction;
 
@@ -51,21 +52,11 @@ final class Transaction implements TransactionInterface
 
     private function finishTransaction(): void
     {
-        $this->transaction->finish();
+        $this->transaction->setHttpStatus((int) http_response_code());
     }
 
     public function startChild(SpanContext $context): TracingSpan
     {
         return $this->transaction->startChild($context);
-    }
-
-    public function getTransaction(): SentryTransaction
-    {
-        return $this->transaction;
-    }
-
-    public function setTransaction(SentryTransaction $transaction): void
-    {
-        $this->transaction = $transaction;
     }
 }

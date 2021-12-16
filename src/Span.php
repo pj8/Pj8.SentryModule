@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Pj8\SentryModule;
 
+use BEAR\Resource\ResourceObject;
 use Sentry\Tracing\Span as TracingSpan;
 use Sentry\Tracing\SpanContext;
-use Sentry\Tracing\Transaction;
+use Sentry\Tracing\SpanStatus;
 
 use function array_pop;
-use function count;
+use function assert;
 use function end;
 
 final class Span implements SpanInterface
 {
-    /** @var array<(TracingSpan|mixed)> */
+    /** @var array<TracingSpan|StartChildInterface> */
     private array $spans = [];
     private TransactionInterface $transaction;
 
@@ -30,57 +31,38 @@ final class Span implements SpanInterface
 
     public function start(SpanContext $context): void
     {
-        $span = $this->getCurrentSpan();
-        if ($span === null) {
-            $span = $this->transaction->getTransaction();
-        }
-
+        $span = $this->getSpan();
         $this->spans[] = $span->startChild($context);
     }
 
-    public function finish(): void
+    /**
+     * @param mixed $value
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     */
+    public function finish($value): void
     {
-        if (count($this->spans) === 0) {
-            return;
-        }
-
         $span = array_pop($this->spans);
-        if (! $span) {
+        assert($span instanceof TracingSpan);
+        $span->finish();
+        if (! ($value instanceof ResourceObject)) {
             return;
         }
 
-        $span->finish();
+        $span->setStatus(SpanStatus::createFromHttpStatusCode($value->code));
     }
 
     /**
-     * @return TracingSpan|Transaction|null
+     * @return TracingSpan|StartChildInterface
      */
-    public function getCurrentSpan()
+    private function getSpan()
     {
         if ($this->spans) {
             return end($this->spans);
         }
 
-        return null;
-    }
+        $this->spans[] = $this->transaction;
 
-    public function setCurrentSpan(?TracingSpan $span): void
-    {
-        if (count($this->spans) === 0) {
-            return;
-        }
-
-        $span = array_pop($this->spans);
-        if (! $span) {
-            return;
-        }
-
-        $this->spans[] = $span;
-    }
-
-    public function isFirst(): bool
-    {
-        // First Span (Transaction's child)
-        return count($this->spans) === 1;
+        return $this->transaction;
     }
 }

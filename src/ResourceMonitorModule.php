@@ -11,7 +11,6 @@ class ResourceMonitorModule extends AbstractModule
 {
     protected function configure()
     {
-        $this->bind(ResourceTraceInterface::class)->to(ResourceTrace::class);
         $this->bindInterceptor(
             $this->matcher->subclassesOf(ResourceObject::class),
             new IsHttpMethodMatcher(),
